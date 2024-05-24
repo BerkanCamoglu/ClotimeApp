@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277485908057",
+    "project_id": "clotime-app",
+    "storage_bucket": "clotime-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277485908057:android:001f2397d0d9fcee88c148",
+        "android_client_info": {
+          "package_name": "com.clotime.clotimeapp.clotimeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_jFkPF1tBLmXkJURtIA_J36tGmDTAkR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
