@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'core/constants/app/app_constants.dart';
 import 'core/init/app/app_init.dart';
 import 'core/init/lang/language_manager.dart';
@@ -48,7 +47,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-//TODO: UserModel oluştur tüm verileri belirle toJson ve fromJson ekle
-//TODO: ImageModel oluştur tüm verileri belirle toJson ve fromJson ekle
-//TODO: ImageModel için önce firebase'e at url'i modele yaz modeli firestore'a at

@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../core/component/widgets/categories_widget.dart';
 import '../add-clothes/add_clothes_view.dart';
@@ -14,10 +13,10 @@ class WardrobeViewPage extends StatefulWidget {
 }
 
 class _WardrobeViewPageState extends State<WardrobeViewPage> {
-  String? _userGender; // Kullanıcı cinsiyetini tutacak değişken
-  final firebaseAuth = FirebaseAuth.instance;
-  final firebaseFirestore = FirebaseFirestore.instance;
-  final firebaseStorage = FirebaseStorage.instance;
+  String? _userGender;
+  String? _selectedSubCategory;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -26,17 +25,15 @@ class _WardrobeViewPageState extends State<WardrobeViewPage> {
   }
 
   Future<void> _loadUserGender() async {
-    final user = firebaseAuth.currentUser;
+    final user = _firebaseAuth.currentUser;
     if (user == null) return;
 
     final userDoc =
-        await firebaseFirestore.collection('Users').doc(user.uid).get();
+        await _firebaseFirestore.collection('Users').doc(user.uid).get();
     setState(() {
       _userGender = userDoc['gender'];
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +84,11 @@ class _WardrobeViewPageState extends State<WardrobeViewPage> {
                     ),
                   ),
                 ),
-                if (_userGender != null) CategoriesWidget(gender: _userGender!),
+                if (_userGender != null)
+                  CategoriesWidget(
+                    gender: _userGender!,
+                    onSubCategorySelected: _onSubCategorySelected,
+                  ),
                 Container(
                   alignment: Alignment.centerLeft,
                   margin:
@@ -101,51 +102,67 @@ class _WardrobeViewPageState extends State<WardrobeViewPage> {
                     ),
                   ),
                 ),
-                StreamBuilder(
-                  stream: firebaseFirestore
-                      .collection('Users')
-                      .doc(firebaseAuth.currentUser?.uid)
-                      .collection("Photos")
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return const Text('Fotoğraf bulunamadı');
-                    }
-
-                    var data = snapshot.data!.docs;
-                    return GridView(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      children: data.map((doc) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            image: DecorationImage(
-                              image: NetworkImage(doc['imageUrl']),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Text(doc['category'].toString()),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
+                if (_selectedSubCategory != null)
+                  _buildClothesGrid(_selectedSubCategory!)
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _onSubCategorySelected(String subCategory) {
+    setState(() {
+      _selectedSubCategory = subCategory;
+    });
+  }
+
+  Widget _buildClothesGrid(String category) {
+    return StreamBuilder(
+      stream: _firebaseFirestore
+          .collection('Users')
+          .doc(_firebaseAuth.currentUser?.uid)
+          .collection("Photos")
+          .where('subCategory', isEqualTo: category)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Text("No items found.");
+        }
+
+        final documents = snapshot.data!.docs;
+
+        return GridView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: documents.length,
+          itemBuilder: (context, index) {
+            final doc = documents[index];
+            return Card(
+              child: Column(
+                children: [
+                  Image.network(
+                    doc['imageUrl'],
+                    fit: BoxFit.cover,
+                    height: 182,
+                    width: double.infinity,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

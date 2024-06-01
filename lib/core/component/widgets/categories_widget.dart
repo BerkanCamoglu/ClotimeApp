@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CategoriesWidget extends StatefulWidget {
-  final String gender; // Kullanıcı cinsiyetini alacak
-  const CategoriesWidget({super.key, required this.gender});
+  final String gender;
+  final Function(String) onSubCategorySelected;
+
+  const CategoriesWidget({
+    super.key,
+    required this.gender,
+    required this.onSubCategorySelected,
+  });
 
   @override
   State<CategoriesWidget> createState() => _CategoriesWidgetState();
@@ -11,6 +17,7 @@ class CategoriesWidget extends StatefulWidget {
 class _CategoriesWidgetState extends State<CategoriesWidget> {
   Map<String, List<String>> categories = {};
   String? _selectedCategory;
+  String? _selectedSubCategory;
 
   @override
   void initState() {
@@ -119,6 +126,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
                   setState(() {
                     _selectedCategory =
                         _selectedCategory == category ? null : category;
+                    _selectedSubCategory = null;
                   });
                 },
                 child: Container(
@@ -128,7 +136,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   decoration: BoxDecoration(
                     color: _selectedCategory == category
-                        ? Colors.blue
+                        ? const Color(0xFF4C53A5)
                         : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -147,21 +155,33 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
               if (_selectedCategory == category)
                 Row(
                   children: categories[category]!.map((subCategory) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Center(
-                        child: Text(
-                          subCategory,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Color(0xFF4C53A5),
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedSubCategory = subCategory;
+                        });
+                        widget.onSubCategorySelected(subCategory);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 15),
+                        decoration: BoxDecoration(
+                          color: _selectedSubCategory == subCategory
+                              ? const Color(0xFF4C53A5)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            subCategory,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: _selectedSubCategory == subCategory
+                                  ? Colors.white
+                                  : const Color(0xFF4C53A5),
+                            ),
                           ),
                         ),
                       ),

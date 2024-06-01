@@ -163,6 +163,8 @@ class _AddClothesViewState extends State<AddClothesView> {
     if (selectedCategory != null &&
         selectedSubcategory != null &&
         _image != null) {
+      Navigator.pop(context);
+
       final storageRef = firebaseStorage
           .ref()
           .child('user_photos')
@@ -188,7 +190,6 @@ class _AddClothesViewState extends State<AddClothesView> {
       );
 
       // ignore: use_build_context_synchronously
-      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

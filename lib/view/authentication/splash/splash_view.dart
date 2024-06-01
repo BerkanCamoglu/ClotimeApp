@@ -57,7 +57,11 @@ class _SplashViewState extends State<SplashView> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            FlutterLogo(size: 150),
+            Image(
+              image: AssetImage('assets/img/authentication/clotime.png'),
+              width: 300,
+              height: 300,
+            ),
             CircularProgressIndicator(),
           ],
         ),

@@ -67,7 +67,11 @@ class _LoginViewState extends State<LoginView> {
                                         "Başarıyla Giriş Yapıldı, Gardrop Sayfasına Yönlendiriliyorsunuz..."),
                                   ),
                                 );
-                                Navigator.pushReplacementNamed(context, "/app");
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  "/app",
+                                  (route) => false,
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
