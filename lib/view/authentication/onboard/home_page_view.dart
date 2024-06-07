@@ -3,10 +3,8 @@ import 'dart:convert';
 import 'package:clotimeapp/models/combine_model.dart';
 import 'package:clotimeapp/view/authentication/onboard/create_combine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../service/auth_service.dart';
@@ -24,6 +22,7 @@ class _HomePageViewState extends State<HomePageView> {
   String _fullName = 'Kullanıcı Yok';
   String _currentTime = '';
   Timer? _timer;
+  String _city = 'Sivas';
 
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
@@ -45,9 +44,8 @@ class _HomePageViewState extends State<HomePageView> {
 
   Future<void> _fetchWeatherData() async {
     var apiKey = '27c27d34388760ec47244e792852e995';
-    var city = 'Sivas';
     var apiUrl =
-        'http://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey';
+        'http://api.openweathermap.org/data/2.5/weather?q=$_city&appid=$apiKey';
 
     var response = await http.get(Uri.parse(apiUrl));
 
@@ -128,16 +126,25 @@ class _HomePageViewState extends State<HomePageView> {
                       fontSize: 16,
                     ),
                   ),
+                  Text(
+                    _city,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Hoşgeldin: $_fullName',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          Center(
+            child: Text(
+              'Hoşgeldin: $_fullName',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -182,6 +189,12 @@ class _HomePageViewState extends State<HomePageView> {
                   child: Text("Bir Hata Oluştu"),
                 );
               }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(
+                  child: Text("Hiç kombin bulunamadı."),
+                );
+              }
+
               var docs = snapshot.data!.docs;
               return ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
@@ -189,55 +202,55 @@ class _HomePageViewState extends State<HomePageView> {
                 itemCount: docs.length,
                 itemBuilder: (context, index) {
                   var model = CombineModel.fromJson(docs[index].data());
-                  return SizedBox(
-                    width: 390,
-                    height: 390,
-                    child: Stack(
-                      children: [
-                        GridView(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 2,
-                            crossAxisSpacing: 2,
-                            childAspectRatio: 1,
-                          ),
+                  return Column(
+                    children: [
+                      SizedBox(
+                        width: 390,
+                        height: 390,
+                        child: Stack(
                           children: [
-                            Image.network(
-                              fit: BoxFit.fill,
-                              model.ustGiyim.toString(),
-                            ),
-                            Image.network(
-                              fit: BoxFit.fill,
-                              model.altGiyim.toString(),
-                            ),
-                            Image.network(
-                              fit: BoxFit.fill,
-                              model.disGiyim.toString(),
-                            ),
-                            Image.network(
-                              fit: BoxFit.fill,
-                              model.ayakkabi.toString(),
+                            GridView(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 2,
+                                crossAxisSpacing: 2,
+                                childAspectRatio: 1,
+                              ),
+                              children: [
+                                (model.ustGiyim?.isEmpty ?? true)
+                                    ? Container(color: const Color(0xFF4C53A5))
+                                    : Image.network(
+                                        fit: BoxFit.fill,
+                                        model.ustGiyim.toString(),
+                                      ),
+                                (model.altGiyim?.isEmpty ?? true)
+                                    ? Container(color: const Color(0xFF4C53A5))
+                                    : Image.network(
+                                        fit: BoxFit.fill,
+                                        model.altGiyim.toString(),
+                                      ),
+                                (model.disGiyim?.isEmpty ?? true)
+                                    ? Container(color: const Color(0xFF4C53A5))
+                                    : Image.network(
+                                        fit: BoxFit.fill,
+                                        model.disGiyim.toString(),
+                                      ),
+                                (model.ayakkabi?.isEmpty ?? true)
+                                    ? Container(color: const Color(0xFF4C53A5))
+                                    : Image.network(
+                                        fit: BoxFit.fill,
+                                        model.ayakkabi.toString(),
+                                      ),
+                              ],
                             ),
                           ],
                         ),
-                        Center(
-                          child: Text(
-                            "Oluşturulduğu Tarih \n${DateFormat("dd/MM/yyyy").format(
-                              model.createdAt!.toDate(),
-                            )}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   );
                 },
               );
@@ -245,7 +258,7 @@ class _HomePageViewState extends State<HomePageView> {
           ),
           const SizedBox(
             height: 50,
-          )
+          ),
         ],
       ),
     );

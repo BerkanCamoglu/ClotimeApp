@@ -210,6 +210,7 @@ class _AddClothesViewState extends State<AddClothesView> {
       sourcePath: galeryPicture.path,
       aspectRatioPresets: [
         CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio3x2,
       ],
       compressFormat: ImageCompressFormat.jpg,
       androidUiSettings: const AndroidUiSettings(
@@ -236,7 +237,7 @@ class _AddClothesViewState extends State<AddClothesView> {
 
     return Scaffold(
       appBar: const HomeAppBar(),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -293,11 +294,10 @@ class _AddClothesViewState extends State<AddClothesView> {
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(30),
-                      child: Image.file(_image!, fit: BoxFit.fitHeight),
+                      child: Image.file(_image!, fit: BoxFit.contain),
                     ),
             ),
             const SizedBox(height: 20),
-            const Spacer(),
             ElevatedButton(
               onPressed: onSubmit,
               child: const Text("Kıyafeti Ekle"),
@@ -320,33 +320,19 @@ class _AddClothesViewState extends State<AddClothesView> {
       margin: const EdgeInsets.only(bottom: 20),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          labelText: hint,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Color(0xFF4C53A5)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Color(0xFF4C53A5)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Color(0xFF4C53A5)),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        hint: Text(hint, style: const TextStyle(color: Color(0xFF4C53A5))),
         value: value,
-        items: items.map((String item) {
+        items: items.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item, style: const TextStyle(color: Color(0xFF4C53A5))),
+            value: value,
+            child: Text(value),
           );
         }).toList(),
         onChanged: onChanged,
-        icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF4C53A5)),
-        dropdownColor: Colors.white,
-        style: const TextStyle(color: Color(0xFF4C53A5), fontSize: 16),
       ),
     );
   }

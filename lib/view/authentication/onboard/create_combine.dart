@@ -23,10 +23,10 @@ class _CreateCombineViewState extends State<CreateCombineView> {
   List<PhotoModel> _dis = [];
   List<PhotoModel> _ayakkabi = [];
 
-  PhotoModel selecetedUst = PhotoModel();
-  PhotoModel selecetedAlt = PhotoModel();
-  PhotoModel selecetedDis = PhotoModel();
-  PhotoModel selecetedAyak = PhotoModel();
+  PhotoModel? selecetedUst;
+  PhotoModel? selecetedAlt;
+  PhotoModel? selecetedDis;
+  PhotoModel? selecetedAyak;
 
   bool _isLoading = true;
 
@@ -70,7 +70,6 @@ class _CreateCombineViewState extends State<CreateCombineView> {
     _ust = photos.where((element) => element.category == "Üst Giyim").toList();
     _alt = photos.where((element) => element.category == "Alt Giyim").toList();
     _dis = photos.where((element) => element.category == "Dış Giyim").toList();
-
     _ayakkabi =
         photos.where((element) => element.category == "Ayakkabı").toList();
 
@@ -121,7 +120,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
 
   void handleUstSeleceted(PhotoModel model) {
     if (model == selecetedUst) {
-      selecetedUst = PhotoModel();
+      selecetedUst = null;
     } else {
       selecetedUst = model;
     }
@@ -130,7 +129,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
 
   void handleAltSeleceted(PhotoModel model) {
     if (model == selecetedAlt) {
-      selecetedAlt = PhotoModel();
+      selecetedAlt = null;
     } else {
       selecetedAlt = model;
     }
@@ -139,7 +138,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
 
   void handleDisSeleceted(PhotoModel model) {
     if (model == selecetedDis) {
-      selecetedDis = PhotoModel();
+      selecetedDis = null;
     } else {
       selecetedDis = model;
     }
@@ -148,7 +147,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
 
   void handleAyakSeleceted(PhotoModel model) {
     if (model == selecetedAyak) {
-      selecetedAyak = PhotoModel();
+      selecetedAyak = null;
     } else {
       selecetedAyak = model;
     }
@@ -156,21 +155,6 @@ class _CreateCombineViewState extends State<CreateCombineView> {
   }
 
   Future<void> saveCombine() async {
-    if (selecetedUst.imageUrl == null) {
-      showAlert("Lütfen bir üst giyim seçiniz");
-      return;
-    }
-
-    if (selecetedAlt.imageUrl == null) {
-      showAlert("Lütfen bir alt giyim seçiniz");
-      return;
-    }
-
-    if (selecetedAyak.imageUrl == null) {
-      showAlert("Lütfen bir ayakkabı giyim seçiniz");
-      return;
-    }
-
     final user = _auth.currentUser;
     if (user == null) {
       return;
@@ -189,36 +173,42 @@ class _CreateCombineViewState extends State<CreateCombineView> {
                   const Text('Üst Giyim:'),
                   SizedBox(
                     height: 200,
-                    child: Image.network(
-                      selecetedUst.imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: selecetedUst == null
+                        ? const Center(child: Text('Kıyafet seçilmedi'))
+                        : Image.network(
+                            selecetedUst!.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                   const Text('Alt Giyim:'),
                   SizedBox(
                     height: 200,
-                    child: Image.network(
-                      selecetedAlt.imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: selecetedAlt == null
+                        ? const Center(child: Text('Kıyafet seçilmedi'))
+                        : Image.network(
+                            selecetedAlt!.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                   const Text('Dış Giyim:'),
                   SizedBox(
                     height: 200,
-                    child: selecetedDis.imageUrl == null
-                        ? const SizedBox()
+                    child: selecetedDis == null
+                        ? const Center(child: Text('Kıyafet seçilmedi'))
                         : Image.network(
-                            selecetedDis.imageUrl!,
+                            selecetedDis!.imageUrl!,
                             fit: BoxFit.cover,
                           ),
                   ),
                   const Text('Ayakkabı:'),
                   SizedBox(
                     height: 200,
-                    child: Image.network(
-                      selecetedAyak.imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: selecetedAyak == null
+                        ? const Center(child: Text('Kıyafet seçilmedi'))
+                        : Image.network(
+                            selecetedAyak!.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ],
               ),
@@ -229,10 +219,10 @@ class _CreateCombineViewState extends State<CreateCombineView> {
                   try {
                     var model = CombineModel.fromJson(
                       {
-                        'ustGiyim': selecetedUst.imageUrl,
-                        'altGiyim': selecetedAlt.imageUrl,
-                        'disGiyim': selecetedDis.imageUrl,
-                        'ayakkabi': selecetedAyak.imageUrl,
+                        'ustGiyim': selecetedUst?.imageUrl ?? '',
+                        'altGiyim': selecetedAlt?.imageUrl ?? '',
+                        'disGiyim': selecetedDis?.imageUrl ?? '',
+                        'ayakkabi': selecetedAyak?.imageUrl ?? '',
                         'createdAt': Timestamp.now(),
                       },
                     );
@@ -250,9 +240,9 @@ class _CreateCombineViewState extends State<CreateCombineView> {
                         .collection("Combines")
                         .doc()
                         .set(model.toJson());
-
-                    // ignore: empty_catches
-                  } catch (e) {}
+                  } catch (e) {
+                    showAlert('Kombin kaydedilirken bir hata oluştu.');
+                  }
                 },
                 child: const Text('Anasayfaya Git'),
               ),
@@ -261,23 +251,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
         },
       );
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Hata'),
-            content: const Text('Kombin kaydedilirken bir hata oluştu.'),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Tamam'),
-              ),
-            ],
-          );
-        },
-      );
+      showAlert('Kombin kaydedilirken bir hata oluştu.');
     }
   }
 
@@ -291,7 +265,7 @@ class _CreateCombineViewState extends State<CreateCombineView> {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Tamam"),
+            child: const Text("Tamam"),
           ),
         );
       },
